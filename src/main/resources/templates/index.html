@@ -66,16 +66,24 @@
         .btn-naranja { background-color: #ff6600; border: none; color: white; font-weight: 700; }
         .btn-naranja:hover { background-color: #e65c00; color: white; }
 
-        /* ===== MODULOS ===== */
-        .modulos { padding: 50px 40px; }
-        .modulo-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
+        /* ===== POR QUE FEEDEXX ===== */
+        .porque-feedexx { padding: 60px 40px; text-align: center; }
+        .razon-card {
+            padding: 25px 15px;
             height: 100%;
-            transition: box-shadow 0.15s;
         }
-        .modulo-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .razon-card .icono-razon {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            background: #f2e9fb;
+            color: #4d148c;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px auto;
+        }
+        .razon-card .icono-razon svg { width: 28px; height: 28px; }
+
+        /* ===== PANEL ADMIN (solo visible logueado como ADMIN) ===== */
+        .panel-admin { padding: 30px 40px 60px 40px; }
     </style>
 </head>
 <body>
@@ -88,8 +96,6 @@
         <a th:href="@{/envios}" class="nav-link-custom">Envios</a>
         <a th:href="@{/rastreo}" class="nav-link-custom">Rastreo</a>
         <a th:href="@{/grafo}" class="nav-link-custom">Mejor Ruta</a>
-        <a th:href="@{/ciudades}" class="nav-link-custom">Ciudades</a>
-        <a th:href="@{/rutas}" class="nav-link-custom">Soporte</a>
     </div>
 
     <a th:href="@{/login}" class="nav-derecha">
@@ -102,14 +108,14 @@
 </nav>
 
 <!-- ===== HERO ===== -->
-<div class="hero-feedexx">
+<div class="hero-feedexx text-center">
     <div th:if="${param.accesoDenegado}" class="alert alert-danger mx-auto" style="max-width: 600px;">
         No tienes permiso para acceder a esa seccion. Se requiere una cuenta de administrador.
     </div>
 
-    <h1 class="mb-5">Envio, gestion, rastreo, entrega.</h1>
+    <h1 class="mb-5 mx-auto">Envio, gestion, rastreo, entrega.</h1>
 
-    <div class="row g-3" style="max-width: 780px;">
+    <div class="row g-3 mx-auto justify-content-center" style="max-width: 780px;">
         <div class="col-4">
             <a th:href="@{/envios}" class="accion-card">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="mx-auto d-block">
@@ -144,7 +150,7 @@
         </div>
     </div>
 
-    <div class="row mt-4">
+    <div class="row mt-4 justify-content-center">
         <div class="col-md-6">
             <form th:action="@{/rastreo/buscar}" method="post" class="d-flex">
                 <input type="number" class="form-control me-2" name="idEnvio" placeholder="ID DE RASTREO" required>
@@ -154,66 +160,75 @@
     </div>
 </div>
 
-<!-- ===== MODULOS DEL SISTEMA ===== -->
-<div class="modulos">
-    <h4 class="mb-4">Modulos del sistema</h4>
-    <div class="row g-3">
+<!-- ===== POR QUE CONFIAR EN FEEDEXX ===== -->
+<div class="porque-feedexx">
+    <h3 class="mb-5">¿Por que confiar en Feedexx?</h3>
+    <div class="row g-4">
         <div class="col-md-3">
-            <div class="modulo-card">
-                <h6>Usuarios</h6>
-                <p class="text-muted small">Cuentas del sistema (clientes, repartidores, admin).</p>
-                <a th:href="@{/usuarios}" class="btn btn-outline-secondary btn-sm w-100">Gestionar</a>
+            <div class="razon-card">
+                <div class="icono-razon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="6" cy="6" r="2.2"></circle>
+                        <circle cx="18" cy="6" r="2.2"></circle>
+                        <circle cx="12" cy="18" r="2.2"></circle>
+                        <path d="M8 6h8M7.2 7.8 10.8 16.2M16.8 7.8 13.2 16.2"></path>
+                    </svg>
+                </div>
+                <h6>Rutas optimizadas</h6>
+                <p class="text-muted small">Calculamos el camino mas corto entre ciudades con algoritmos de grafos, no tarifas al azar.</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="modulo-card">
-                <h6>Clientes</h6>
-                <p class="text-muted small">Datos de clientes registrados.</p>
-                <a th:href="@{/clientes}" class="btn btn-outline-secondary btn-sm w-100">Gestionar</a>
+            <div class="razon-card">
+                <div class="icono-razon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="4" y="7" width="14" height="12" rx="1"></rect>
+                        <circle cx="17" cy="17" r="4"></circle>
+                    </svg>
+                </div>
+                <h6>Rastreo en tiempo real</h6>
+                <p class="text-muted small">Consulta el estado de tu encomienda cuando quieras, con solo tu numero de rastreo.</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="modulo-card">
-                <h6>Repartidores</h6>
-                <p class="text-muted small">Personal encargado de las entregas.</p>
-                <a th:href="@{/repartidores}" class="btn btn-outline-secondary btn-sm w-100">Gestionar</a>
+            <div class="razon-card">
+                <div class="icono-razon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M21 8l-9-5-9 5 9 5 9-5z"></path>
+                        <path d="M3 8v8l9 5 9-5V8"></path>
+                    </svg>
+                </div>
+                <h6>Tarifas justas</h6>
+                <p class="text-muted small">El costo se calcula segun el peso y la distancia real de tu envio, sin sorpresas.</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="modulo-card">
-                <h6>Ciudades</h6>
-                <p class="text-muted small">Nodos del grafo (con mapa Google Maps).</p>
-                <a th:href="@{/ciudades}" class="btn btn-outline-secondary btn-sm w-100">Gestionar</a>
+            <div class="razon-card">
+                <div class="icono-razon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M12 2 2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <h6>Cobertura nacional</h6>
+                <p class="text-muted small">Conectamos ciudades en todo el pais a traves de nuestra red de rutas registradas.</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="modulo-card">
-                <h6>Rutas</h6>
-                <p class="text-muted small">Aristas del grafo (distancia entre ciudades).</p>
-                <a th:href="@{/rutas}" class="btn btn-outline-secondary btn-sm w-100">Gestionar</a>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="modulo-card">
-                <h6>Buscar Mejor Ruta</h6>
-                <p class="text-muted small">Algoritmo de Dijkstra sobre el grafo de ciudades.</p>
-                <a th:href="@{/grafo}" class="btn btn-outline-secondary btn-sm w-100">Calcular</a>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="modulo-card">
-                <h6>Envios</h6>
-                <p class="text-muted small">Registro de encomiendas y calculo automatico de costo.</p>
-                <a th:href="@{/envios}" class="btn btn-outline-secondary btn-sm w-100">Gestionar</a>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="modulo-card">
-                <h6>Comprobantes</h6>
-                <p class="text-muted small">Comprobante generado por cada envio.</p>
-                <a th:href="@{/comprobantes}" class="btn btn-outline-secondary btn-sm w-100">Gestionar</a>
-            </div>
-        </div>
+    </div>
+</div>
+
+<!-- ===== PANEL ADMIN (solo visible si inicio sesion como ADMIN) ===== -->
+<div class="panel-admin" th:if="${session.usuarioActual != null and session.usuarioActual.rol == 'ADMIN'}">
+    <hr>
+    <h6 class="text-muted mb-3">Panel de administracion</h6>
+    <div class="d-flex flex-wrap gap-2">
+        <a th:href="@{/usuarios}" class="btn btn-outline-secondary btn-sm">Usuarios</a>
+        <a th:href="@{/clientes}" class="btn btn-outline-secondary btn-sm">Clientes</a>
+        <a th:href="@{/repartidores}" class="btn btn-outline-secondary btn-sm">Repartidores</a>
+        <a th:href="@{/ciudades}" class="btn btn-outline-secondary btn-sm">Ciudades</a>
+        <a th:href="@{/rutas}" class="btn btn-outline-secondary btn-sm">Rutas</a>
+        <a th:href="@{/comprobantes}" class="btn btn-outline-secondary btn-sm">Comprobantes</a>
     </div>
 </div>
 
