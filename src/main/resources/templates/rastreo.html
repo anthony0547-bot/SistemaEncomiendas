@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Rastrear Envio - Feedexx</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .navbar-feedexx { background-color: #4d148c; padding: 18px 40px; }
+        .logo-feedexx { font-weight: 800; font-size: 1.6rem; color: #ffffff; }
+        .logo-feedexx span { color: #ff6600; }
+        .btn-naranja { background-color: #ff6600; border: none; color: white; font-weight: 700; }
+        .btn-naranja:hover { background-color: #e65c00; color: white; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar-feedexx d-flex align-items-center justify-content-between">
+    <span class="logo-feedexx">Feed<span>exx</span></span>
+    <a th:href="@{/}" class="text-white text-decoration-none">&larr; Menu principal</a>
+</nav>
+
+<div class="container mt-5" style="max-width: 700px;">
+    <h2 class="mb-4">Rastrea tu envio</h2>
+
+    <form th:action="@{/rastreo/buscar}" method="post" class="d-flex mb-4">
+        <input type="number" class="form-control me-2" name="idEnvio" placeholder="ID de rastreo (ej: 1, 2, 3...)" required>
+        <button type="submit" class="btn btn-naranja px-4">RASTREAR</button>
+    </form>
+
+    <div th:if="${noEncontrado}" class="alert alert-warning">
+        No se encontro ningun envio con ese ID.
+    </div>
+
+    <div th:if="${envio}" class="card">
+        <div class="card-header">Envio #<span th:text="${envio.idEnvio}"></span></div>
+        <div class="card-body">
+            <p><b>Estado:</b>
+                <span class="badge bg-primary" th:text="${envio.estado}"></span>
+            </p>
+            <p><b>Fecha de registro:</b> <span th:text="${envio.fecha}"></span></p>
+            <p><b>Cliente:</b> <span th:text="${envio.cliente.usuario.nombre} + ' ' + ${envio.cliente.usuario.apellido}"></span></p>
+            <p><b>Ruta:</b>
+                <span th:text="${envio.ruta.ciudadOrigen.nombre} + ' &rarr; ' + ${envio.ruta.ciudadDestino.nombre}"></span>
+            </p>
+            <p><b>Distancia:</b> <span th:text="${envio.ruta.distanciaKm}"></span> km</p>
+            <p><b>Peso:</b> <span th:text="${envio.peso}"></span> kg</p>
+            <p><b>Costo:</b> $<span th:text="${envio.costo}"></span></p>
+            <p th:if="${envio.repartidor != null}">
+                <b>Repartidor asignado:</b>
+                <span th:text="${envio.repartidor.usuario.nombre} + ' ' + ${envio.repartidor.usuario.apellido}"></span>
+            </p>
+            <p th:if="${envio.repartidor == null}" class="text-muted">Aun no se ha asignado un repartidor.</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

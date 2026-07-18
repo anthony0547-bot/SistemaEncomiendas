@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion de Usuarios</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4">Gestion de Usuarios</h1>
+    <a th:href="@{/}" class="btn btn-secondary btn-sm mb-3">&larr; Menu principal</a>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">Registrar / Editar Usuario</div>
+                <div class="card-body">
+                    <form th:action="@{/usuarios/guardar}" th:object="${usuarioNuevo}" method="post">
+                        <input type="hidden" th:field="*{idUsuario}">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" th:field="*{nombre}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Apellido</label>
+                            <input type="text" class="form-control" th:field="*{apellido}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Correo</label>
+                            <input type="email" class="form-control" th:field="*{correo}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contrasena</label>
+                            <input type="password" class="form-control" th:field="*{contrasena}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rol</label>
+                            <select class="form-select" th:field="*{rol}" required>
+                                <option value="CLIENTE">Cliente</option>
+                                <option value="REPARTIDOR">Repartidor</option>
+                                <option value="ADMIN">Administrador</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                <tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${listarUsuarios}">
+                    <td th:text="${u.idUsuario}"></td>
+                    <td th:text="${u.nombre} + ' ' + ${u.apellido}"></td>
+                    <td th:text="${u.correo}"></td>
+                    <td th:text="${u.rol}"></td>
+                    <td>
+                        <a th:href="@{/usuarios/editar/{id}(id=${u.idUsuario})}" class="btn btn-sm btn-warning">Editar</a>
+                        <a th:href="@{/usuarios/eliminar/{id}(id=${u.idUsuario})}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar?');">Eliminar</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

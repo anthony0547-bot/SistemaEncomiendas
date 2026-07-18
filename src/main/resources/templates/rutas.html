@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion de Rutas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4">Gestion de Rutas (Aristas del Grafo)</h1>
+    <a th:href="@{/}" class="btn btn-secondary btn-sm mb-3">&larr; Menu principal</a>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">Registrar Ruta</div>
+                <div class="card-body">
+                    <form th:action="@{/rutas/guardar}" th:object="${rutaNueva}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Ciudad Origen</label>
+                            <select class="form-select" id="ciudadOrigen" name="idCiudadOrigen" required>
+                                <option value="">Seleccione...</option>
+                                <option th:each="c : ${listarCiudades}"
+                                        th:value="${c.idCiudad}"
+                                        th:data-lat="${c.latitud}" th:data-lng="${c.longitud}"
+                                        th:text="${c.nombre}"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ciudad Destino</label>
+                            <select class="form-select" id="ciudadDestino" name="idCiudadDestino" required>
+                                <option value="">Seleccione...</option>
+                                <option th:each="c : ${listarCiudades}"
+                                        th:value="${c.idCiudad}"
+                                        th:data-lat="${c.latitud}" th:data-lng="${c.longitud}"
+                                        th:text="${c.nombre}"></option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <button type="button" id="btnCalcular" class="btn btn-outline-primary w-100">
+                                Calcular distancia
+                            </button>
+                            <div id="estadoCalculo" class="form-text"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Distancia (km)</label>
+                            <input type="number" step="0.01" class="form-control" id="distanciaKm" th:field="*{distanciaKm}" required>
+                            <small class="text-muted">Se llena automaticamente, pero puedes editarla si lo necesitas.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tiempo estimado (minutos)</label>
+                            <input type="number" class="form-control" id="tiempoEstimado" th:field="*{tiempoEstimado}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Guardar Ruta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                <tr><th>ID</th><th>Origen</th><th>Destino</th><th>Km</th><th>Min</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${listarRutas}">
+                    <td th:text="${r.idRuta}"></td>
+                    <td th:text="${r.ciudadOrigen.nombre}"></td>
+                    <td th:text="${r.ciudadDestino.nombre}"></td>
+                    <td th:text="${r.distanciaKm}"></td>
+                    <td th:text="${r.tiempoEstimado}"></td>
+                    <td>
+                        <a th:href="@{/rutas/eliminar/{id}(id=${r.idRuta})}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar?');">Eliminar</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("btnCalcular").addEventListener("click", function () {
+        const origenOpt = document.getElementById("ciudadOrigen").selectedOptions[0];
+        const destinoOpt = document.getElementById("ciudadDestino").selectedOptions[0];
+        const estadoDiv = document.getElementById("estadoCalculo");
+
+        if (!origenOpt || !origenOpt.value || !destinoOpt || !destinoOpt.value) {
+            estadoDiv.textContent = "Selecciona primero la ciudad origen y destino.";
+            estadoDiv.className = "form-text text-danger";
+            return;
+        }
+
+        if (origenOpt.value === destinoOpt.value) {
+            estadoDiv.textContent = "El origen y el destino no pueden ser la misma ciudad.";
+            estadoDiv.className = "form-text text-danger";
+            return;
+        }
+
+        const origenLat = origenOpt.dataset.lat;
+        const origenLng = origenOpt.dataset.lng;
+        const destinoLat = destinoOpt.dataset.lat;
+        const destinoLng = destinoOpt.dataset.lng;
+
+        estadoDiv.textContent = "Calculando...";
+        estadoDiv.className = "form-text text-muted";
+
+        const params = new URLSearchParams({
+            origenLat: origenLat,
+            origenLng: origenLng,
+            destinoLat: destinoLat,
+            destinoLng: destinoLng
+        });
+
+        fetch("/rutas/calcular-distancia?" + params.toString())
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error("Respuesta no OK");
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                if (data.error) {
+                    estadoDiv.textContent = data.error + ". Ingresa el valor manualmente.";
+                    estadoDiv.className = "form-text text-danger";
+                    return;
+                }
+
+                document.getElementById("distanciaKm").value = data.distanciaKm;
+                document.getElementById("tiempoEstimado").value = data.tiempoMinutos;
+
+                estadoDiv.textContent = "Distancia real por carretera: " + data.distanciaKm + " km (" + data.tiempoMinutos + " min)";
+                estadoDiv.className = "form-text text-success";
+            })
+            .catch(function () {
+                estadoDiv.textContent = "No se pudo calcular la distancia. Ingresa el valor manualmente.";
+                estadoDiv.className = "form-text text-danger";
+            });
+    });
+</script>
+</body>
+</html>

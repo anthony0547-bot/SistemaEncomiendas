@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprobantes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4">Comprobantes de Envio</h1>
+    <a th:href="@{/}" class="btn btn-secondary btn-sm mb-3">&larr; Menu principal</a>
+
+    <div class="card mb-4">
+        <div class="card-header">Generar comprobante para un envio</div>
+        <div class="card-body">
+            <form th:each="e : ${listarEnvios}" th:if="${e.estado == 'REGISTRADO'}"
+                  th:action="@{/comprobantes/generar/{id}(id=${e.idEnvio})}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-primary btn-sm mb-1"
+                        th:text="'Generar comprobante - Envio #' + ${e.idEnvio}"></button>
+            </form>
+        </div>
+    </div>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+        <tr><th>ID</th><th>Numero</th><th>Fecha</th><th>Distancia (km)</th><th>Envio</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${listarComprobantes}">
+            <td th:text="${c.idComprobante}"></td>
+            <td th:text="${c.numero}"></td>
+            <td th:text="${c.fecha}"></td>
+            <td th:text="${c.distancia}"></td>
+            <td th:text="${c.envio.idEnvio}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

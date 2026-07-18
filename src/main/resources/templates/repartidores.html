@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion de Repartidores</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="mb-4">Gestion de Repartidores</h1>
+    <a th:href="@{/}" class="btn btn-secondary btn-sm mb-3">&larr; Menu principal</a>
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">Registrar / Editar Repartidor</div>
+                <div class="card-body">
+                    <form th:action="@{/repartidores/guardar}" th:object="${repartidorNuevo}" method="post">
+                        <input type="hidden" th:field="*{idRepartidor}">
+                        <div class="mb-3">
+                            <label class="form-label">Usuario asociado</label>
+                            <select class="form-select" name="idUsuario" required>
+                                <option th:each="u : ${listarUsuarios}"
+                                        th:value="${u.idUsuario}"
+                                        th:text="${u.nombre} + ' ' + ${u.apellido} + ' (' + ${u.correo} + ')'"></option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Licencia</label>
+                            <input type="text" class="form-control" th:field="*{licencia}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Telefono</label>
+                            <input type="text" class="form-control" th:field="*{telefono}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" th:field="*{estado}" required>
+                                <option value="DISPONIBLE">Disponible</option>
+                                <option value="EN_RUTA">En ruta</option>
+                                <option value="INACTIVO">Inactivo</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                <tr><th>ID</th><th>Nombre</th><th>Licencia</th><th>Estado</th><th>Acciones</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${listarRepartidores}">
+                    <td th:text="${r.idRepartidor}"></td>
+                    <td th:text="${r.usuario.nombre} + ' ' + ${r.usuario.apellido}"></td>
+                    <td th:text="${r.licencia}"></td>
+                    <td th:text="${r.estado}"></td>
+                    <td>
+                        <a th:href="@{/repartidores/editar/{id}(id=${r.idRepartidor})}" class="btn btn-sm btn-warning">Editar</a>
+                        <a th:href="@{/repartidores/eliminar/{id}(id=${r.idRepartidor})}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar?');">Eliminar</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

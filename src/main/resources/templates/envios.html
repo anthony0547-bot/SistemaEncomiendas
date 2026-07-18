@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcular tarifa de envio - Feedexx</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; }
+        .navbar-feedexx { background-color: #4d148c; padding: 18px 40px; }
+        .logo-feedexx { font-weight: 800; font-size: 1.6rem; color: #ffffff; text-decoration: none; }
+        .logo-feedexx span { color: #ff6600; }
+        .btn-naranja { background-color: #ff6600; border: none; color: white; font-weight: 700; }
+        .btn-naranja:hover { background-color: #e65c00; color: white; }
+
+        .titulo-tarifa { text-align: center; font-weight: 400; margin: 40px 0 30px 0; }
+        .subtitulo-tarifa { text-align: center; font-weight: 400; margin: 40px 0 20px 0; }
+
+        /* Recuadro flotante de distancia/tiempo sobre el mapa (como Google Maps) */
+        .mapa-wrapper { position: relative; }
+        .info-ruta-flotante {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(30, 30, 30, 0.92);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .info-ruta-flotante.visible { display: block; }
+        .info-ruta-flotante .tiempo { font-weight: 700; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar-feedexx d-flex align-items-center justify-content-between">
+    <a th:href="@{/}" class="logo-feedexx">Feed<span>exx</span></a>
+    <a th:href="@{/}" class="text-white text-decoration-none">&larr; Menu principal</a>
+</nav>
+
+<div class="container" style="max-width: 900px;">
+
+    <h2 class="titulo-tarifa">Calcular la tarifa de tu encomienda</h2>
+
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <form th:action="@{/envios/guardar}" th:object="${envioNuevo}" method="post">
+
+        <label class="form-label fw-bold">Desde*</label>
+        <select class="form-select mb-3" id="ciudadOrigen" name="idCiudadOrigen" required>
+            <option value="">Seleccione ciudad de origen...</option>
+            <option th:each="c : ${listarCiudades}"
+                    th:value="${c.idCiudad}"
+                    th:data-lat="${c.latitud}" th:data-lng="${c.longitud}"
+                    th:text="${c.nombre} + ', ' + ${c.provincia} + ', Ecuador'"></option>
+        </select>
+
+        <label class="form-label fw-bold">Para*</label>
+        <select class="form-select mb-3" id="ciudadDestino" name="idCiudadDestino" required>
+            <option value="">Seleccione ciudad de destino...</option>
+            <option th:each="c : ${listarCiudades}"
+                    th:value="${c.idCiudad}"
+                    th:data-lat="${c.latitud}" th:data-lng="${c.longitud}"
+                    th:text="${c.nombre} + ', ' + ${c.provincia} + ', Ecuador'"></option>
+        </select>
+
+        <!-- MAPA CON LA MEJOR RUTA -->
+        <div class="mapa-wrapper mb-2">
+            <div id="mapa" style="width: 100%; height: 380px; border-radius: 6px; border: 1px solid #ddd;"></div>
+            <div id="infoRuta" class="info-ruta-flotante">
+                <span id="infoTiempo" class="tiempo"></span><br>
+                <span id="infoDistancia"></span>
+            </div>
+        </div>
+        <div id="debugRuta" class="alert alert-warning py-2 px-3 mb-4" style="display:none; font-size: 0.85rem;"></div>
+
+        <h4 class="subtitulo-tarifa">Cuentanos mas sobre tu envio</h4>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Peso del paquete*</label>
+                <div class="input-group">
+                    <input type="number" step="0.01" class="form-control" th:field="*{peso}" required>
+                    <span class="input-group-text">kg</span>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <label class="form-label fw-bold">Dimensiones L x A x A*</label>
+                <input type="text" class="form-control" th:field="*{dimensiones}" placeholder="Ej: 30 x 20 x 15 cm" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-naranja w-100 py-2 mb-5">ENVIAR</button>
+    </form>
+
+    <h5 class="mb-3">Envios registrados</h5>
+    <table class="table table-striped table-bordered table-sm mb-5">
+        <thead class="table-dark">
+        <tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Estado</th><th>Costo</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="envio : ${listarEnvios}">
+            <td th:text="${envio.idEnvio}"></td>
+            <td th:text="${envio.fecha}"></td>
+            <td th:text="${envio.cliente.usuario.nombre}"></td>
+            <td th:text="${envio.estado}"></td>
+            <td th:text="${envio.costo}"></td>
+            <td>
+                <a th:href="@{/envios/eliminar/{id}(id=${envio.idEnvio})}" class="btn btn-sm btn-danger"
+                   onclick="return confirm('¿Eliminar este envio?');">Eliminar</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC7R1A1OsUEvONyYInmh2iHjcU6AEDN3iQ&libraries=places&callback=initMap"></script>
+
+<script>
+    let map;
+    let marcadorOrigen;
+    let marcadorDestino;
+    let lineaRuta;
+    const coordenadaCentral = { lat: -1.8312, lng: -78.1834 }; // centro de Ecuador
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("mapa"), {
+            zoom: 7,
+            center: coordenadaCentral
+        });
+
+        document.getElementById("ciudadOrigen").addEventListener("change", trazarRuta);
+        document.getElementById("ciudadDestino").addEventListener("change", trazarRuta);
+    }
+
+    function trazarRuta() {
+        const origenOpt = document.getElementById("ciudadOrigen").selectedOptions[0];
+        const destinoOpt = document.getElementById("ciudadDestino").selectedOptions[0];
+        const infoRuta = document.getElementById("infoRuta");
+        const debugDiv = document.getElementById("debugRuta");
+
+        if (!origenOpt || !origenOpt.value || !destinoOpt || !destinoOpt.value) {
+            return;
+        }
+
+        const posOrigen = { lat: parseFloat(origenOpt.dataset.lat), lng: parseFloat(origenOpt.dataset.lng) };
+        const posDestino = { lat: parseFloat(destinoOpt.dataset.lat), lng: parseFloat(destinoOpt.dataset.lng) };
+
+        // 1) Limpiar lo anterior
+        if (marcadorOrigen) marcadorOrigen.setMap(null);
+        if (marcadorDestino) marcadorDestino.setMap(null);
+        if (lineaRuta) lineaRuta.setMap(null);
+
+        marcadorOrigen = new google.maps.Marker({ position: posOrigen, map: map, label: "O" });
+        marcadorDestino = new google.maps.Marker({ position: posDestino, map: map, label: "D" });
+
+        infoRuta.classList.remove("visible");
+        debugDiv.style.display = "none";
+
+        // 2) Pedirle a tu backend (que usa ORS Directions) la geometria real de la
+        //    carretera + distancia + duracion, todo en una sola llamada.
+        const url = "/envios/trazar-ruta?idOrigen=" + origenOpt.value + "&idDestino=" + destinoOpt.value;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.exito) {
+                    debugDiv.style.display = "block";
+                    debugDiv.textContent = "No se pudo trazar la ruta: " + data.mensaje;
+                    // Respaldo: al menos dibuja una linea recta para que se vea algo
+                    lineaRuta = new google.maps.Polyline({
+                        path: [posOrigen, posDestino],
+                        strokeColor: "#0d6efd", strokeOpacity: 0.9, strokeWeight: 4
+                    });
+                    lineaRuta.setMap(map);
+                    const boundsRespaldo = new google.maps.LatLngBounds();
+                    boundsRespaldo.extend(posOrigen);
+                    boundsRespaldo.extend(posDestino);
+                    map.fitBounds(boundsRespaldo);
+                    return;
+                }
+
+                // data.puntosRuta = lista de [lat, lng] que siguen la carretera real
+                const rutaGoogle = data.puntosRuta.map(p => ({ lat: p[0], lng: p[1] }));
+
+                lineaRuta = new google.maps.Polyline({
+                    path: rutaGoogle,
+                    strokeColor: "#0d6efd",
+                    strokeOpacity: 0.9,
+                    strokeWeight: 5
+                });
+                lineaRuta.setMap(map);
+
+                const bounds = new google.maps.LatLngBounds();
+                rutaGoogle.forEach(p => bounds.extend(p));
+                map.fitBounds(bounds);
+
+                const horas = Math.floor(data.tiempoMinutos / 60);
+                const minutos = data.tiempoMinutos % 60;
+                const tiempoTexto = horas > 0 ? (horas + " h " + minutos + " min") : (minutos + " min");
+
+                document.getElementById("infoTiempo").textContent = "🚗 " + tiempoTexto;
+                document.getElementById("infoDistancia").textContent = data.distanciaKm.toFixed(1) + " km";
+                infoRuta.classList.add("visible");
+            })
+            .catch(err => {
+                debugDiv.style.display = "block";
+                debugDiv.textContent = "Error de conexion al calcular la ruta: " + err;
+            });
+    }
+</script>
+</body>
+</html>
