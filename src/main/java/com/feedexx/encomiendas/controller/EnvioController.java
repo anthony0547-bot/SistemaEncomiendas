@@ -74,27 +74,33 @@ public class EnvioController {
                            Model model) {
 
         // Solo al momento de ENVIAR se exige haber iniciado sesion.
-    	Usuario usuarioActual = (Usuario) session.getAttribute("usuarioActual");
+        Usuario usuarioActual = (Usuario) session.getAttribute("usuarioActual");
 
-    	if (usuarioActual == null) {
-    	    return "redirect:/login";
-    	}
+        if (usuarioActual == null) {
+            return "redirect:/login";
+        }
 
-    	envio.setFecha(LocalDate.now());
-    	envio.setEstado("REGISTRADO");
-    	envio.setUsuario(usuarioActual);
+        // --- CORRECCIÓN PARA RAILWAY ---
+        // Evita el error 'null value in column dimensiones' asignando un valor por defecto si no viene en el formulario
+        if (envio.getDimensiones() == null || envio.getDimensiones().trim().isEmpty()) {
+            envio.setDimensiones("Estándar");
+        }
 
-    	try {
-    	    envioService.registrarEnvio(envio, idCiudadOrigen, idCiudadDestino);
-    	} catch (IllegalStateException ex) {
-    	    model.addAttribute("error", ex.getMessage());
-    	    model.addAttribute("listarEnvios", envioService.listarTodos());
-    	    model.addAttribute("envioNuevo", new Envio());
-    	    model.addAttribute("listarCiudades", ciudadService.listarTodas());
-    	    return "envios";
-    	}
+        envio.setFecha(LocalDate.now());
+        envio.setEstado("REGISTRADO");
+        envio.setUsuario(usuarioActual);
 
-    	return "redirect:/envios?exito";
+        try {
+            envioService.registrarEnvio(envio, idCiudadOrigen, idCiudadDestino);
+        } catch (IllegalStateException ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("listarEnvios", envioService.listarTodos());
+            model.addAttribute("envioNuevo", new Envio());
+            model.addAttribute("listarCiudades", ciudadService.listarTodas());
+            return "envios";
+        }
+
+        return "redirect:/envios?exito";
     }
 
     @GetMapping("/eliminar/{id}")
@@ -102,6 +108,7 @@ public class EnvioController {
         envioService.eliminar(id);
         return "redirect:/envios";
     }
+
     @GetMapping("/mis-envios")
     public String misEnvios(HttpSession session, Model model) {
 
