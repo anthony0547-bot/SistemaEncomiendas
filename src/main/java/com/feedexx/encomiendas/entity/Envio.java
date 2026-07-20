@@ -24,12 +24,12 @@ public class Envio {
     @Column(name = "estado", nullable = false, length = 30)
     private String estado; // REGISTRADO, EN_TRANSITO, ENTREGADO
 
-    // VALOR POR DEFECTO PARA QUE POSTGRESQL NUNCA RECIBA NULL
     @Column(name = "dimensiones", nullable = false)
     private String dimensiones = "Estándar";
 
+    // MAPEO CORREGIDO A id_cliente PARA COINCIDIR CON LA BD DE RAILWAY
     @ManyToOne
-    @JoinColumn(name = "id_usuario")
+    @JoinColumn(name = "id_cliente")
     private Usuario usuario;
 
     @ManyToOne
