@@ -24,9 +24,9 @@ public class Envio {
     @Column(name = "estado", nullable = false, length = 30)
     private String estado; // REGISTRADO, EN_TRANSITO, ENTREGADO
 
-    // CAMPO AGREGADO PARA MAPEAR LA COLUMNA DE LA BASE DE DATOS EN RAILWAY
-    @Column(name = "dimensiones")
-    private String dimensiones;
+    // VALOR POR DEFECTO PARA QUE POSTGRESQL NUNCA RECIBA NULL
+    @Column(name = "dimensiones", nullable = false)
+    private String dimensiones = "Estándar";
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
@@ -41,6 +41,7 @@ public class Envio {
     private Ruta ruta;
 
     public Envio() {
+        this.dimensiones = "Estándar";
     }
 
     public Envio(LocalDate fecha, Double peso, Double costo, String estado, String dimensiones,
@@ -50,7 +51,7 @@ public class Envio {
         this.peso = peso;
         this.costo = costo;
         this.estado = estado;
-        this.dimensiones = dimensiones;
+        this.dimensiones = (dimensiones != null && !dimensiones.isBlank()) ? dimensiones : "Estándar";
         this.usuario = usuario;
         this.repartidor = repartidor;
         this.ruta = ruta;
@@ -96,13 +97,16 @@ public class Envio {
         this.estado = estado;
     }
 
-    // GETTER Y SETTER AGREGADOS PARA CORREGIR LA COMPILACIÓN DE MAVEN
     public String getDimensiones() {
         return dimensiones;
     }
 
     public void setDimensiones(String dimensiones) {
-        this.dimensiones = dimensiones;
+        if (dimensiones == null || dimensiones.isBlank()) {
+            this.dimensiones = "Estándar";
+        } else {
+            this.dimensiones = dimensiones;
+        }
     }
 
     public Repartidor getRepartidor() {
