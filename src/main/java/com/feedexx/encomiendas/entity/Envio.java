@@ -18,12 +18,15 @@ public class Envio {
     @Column(name = "peso", nullable = false)
     private Double peso;
 
-
     @Column(name = "costo", nullable = false)
     private Double costo;
 
     @Column(name = "estado", nullable = false, length = 30)
     private String estado; // REGISTRADO, EN_TRANSITO, ENTREGADO
+
+    // CAMPO AGREGADO PARA MAPEAR LA COLUMNA DE LA BASE DE DATOS EN RAILWAY
+    @Column(name = "dimensiones")
+    private String dimensiones;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
@@ -40,17 +43,18 @@ public class Envio {
     public Envio() {
     }
 
-    public Envio(LocalDate fecha, Double peso, Double costo, String estado,
-            Usuario usuario, Repartidor repartidor, Ruta ruta) {
+    public Envio(LocalDate fecha, Double peso, Double costo, String estado, String dimensiones,
+                 Usuario usuario, Repartidor repartidor, Ruta ruta) {
 
-   		this.fecha = fecha;
-   		this.peso = peso;
-   		this.costo = costo;
-   		this.estado = estado;
-   		this.usuario = usuario;
-   		this.repartidor = repartidor;
-   		this.ruta = ruta;
-	}
+        this.fecha = fecha;
+        this.peso = peso;
+        this.costo = costo;
+        this.estado = estado;
+        this.dimensiones = dimensiones;
+        this.usuario = usuario;
+        this.repartidor = repartidor;
+        this.ruta = ruta;
+    }
 
     public Long getIdEnvio() {
         return idEnvio;
@@ -76,7 +80,6 @@ public class Envio {
         this.peso = peso;
     }
 
-
     public Double getCosto() {
         return costo;
     }
@@ -93,6 +96,14 @@ public class Envio {
         this.estado = estado;
     }
 
+    // GETTER Y SETTER AGREGADOS PARA CORREGIR LA COMPILACIÓN DE MAVEN
+    public String getDimensiones() {
+        return dimensiones;
+    }
+
+    public void setDimensiones(String dimensiones) {
+        this.dimensiones = dimensiones;
+    }
 
     public Repartidor getRepartidor() {
         return repartidor;
@@ -109,6 +120,7 @@ public class Envio {
     public void setRuta(Ruta ruta) {
         this.ruta = ruta;
     }
+
     public Usuario getUsuario() {
         return usuario;
     }
