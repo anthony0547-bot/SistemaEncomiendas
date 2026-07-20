@@ -27,9 +27,9 @@ public class Envio {
     @Column(name = "dimensiones", nullable = false)
     private String dimensiones = "Estándar";
 
-    // MAPEO CORREGIDO A id_cliente PARA COINCIDIR CON LA BD DE RAILWAY
+    // MAPEO CORRECTO HACIA LA TABLA USUARIOS (Y SU COLUMNA id_usuario)
     @ManyToOne
-    @JoinColumn(name = "id_cliente")
+    @JoinColumn(name = "id_usuario", referencedColumnName = "id_usuario")
     private Usuario usuario;
 
     @ManyToOne
