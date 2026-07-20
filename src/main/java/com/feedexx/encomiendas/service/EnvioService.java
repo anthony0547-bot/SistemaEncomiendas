@@ -7,26 +7,33 @@ import com.feedexx.encomiendas.repository.RutaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import com.feedexx.encomiendas.repository.RepartidorRepository;
 
 @Service
 public class EnvioService {
+	@Autowired
+	private RepartidorRepository repartidorRepository;
 
     @Autowired
     private EnvioRepository envioRepository;
 
-    @Autowired
-    private RutaRepository rutaRepository;
 
     @Autowired
     private GrafoService grafoService;
 
     // Tarifas base para el calculo automatico del costo (RF04)
-    private static final double COSTO_BASE = 2.0;
     private static final double COSTO_POR_KG = 0.75;
-    private static final double COSTO_POR_KM = 0.05;
 
     public List<Envio> listarTodos() {
         return envioRepository.findAll();
+    }
+    public List<Envio> listarPorUsuario(Long idUsuario) {
+        return envioRepository.findByUsuario_IdUsuario(idUsuario);
+    }
+    public List<Envio> listarPorRepartidor(Long idRepartidor){
+
+        return envioRepository.findByRepartidor_IdRepartidor(idRepartidor);
+
     }
 
     public Envio buscarPorId(Long id) {
@@ -41,8 +48,12 @@ public class EnvioService {
      * Calcula el costo de un envio en base al peso del paquete y a la
      * distancia real de la ruta (obtenida del grafo, no de una tarifa fija).
      */
-    public double calcularCosto(double pesoKg, double distanciaKm) {
-        return COSTO_BASE + (pesoKg * COSTO_POR_KG) + (distanciaKm * COSTO_POR_KM);
+    public double calcularCosto(double costoRuta, double pesoKg) {
+
+        double recargoPeso = pesoKg * 0.75;
+
+        return costoRuta + recargoPeso;
+
     }
 
     /**
@@ -59,13 +70,59 @@ public class EnvioService {
         // Se usa el primer tramo de la ruta optima como la Ruta asociada al envio.
         // (En un catalogo con rutas directas por ciudad, esto normalmente sera 1 solo tramo).
         Ruta rutaAsignada = resultado.rutasUsadas.get(0);
+
         envio.setRuta(rutaAsignada);
-        envio.setCosto(calcularCosto(envio.getPeso(), resultado.distanciaTotal));
+
+        envio.setCosto(
+                calcularCosto(
+                        rutaAsignada.getCostoEnvio(),
+                        envio.getPeso()));
 
         return envioRepository.save(envio);
     }
 
     public Envio guardar(Envio envio) {
         return envioRepository.save(envio);
+    }
+    public void asignarRepartidor(Long idEnvio, Long idRepartidor) {
+
+        Envio envio = buscarPorId(idEnvio);
+
+        if (envio == null) {
+            return;
+        }
+
+        var repartidor = repartidorRepository.findById(idRepartidor).orElse(null);
+
+        if (repartidor == null) {
+            return;
+        }
+
+        envio.setRepartidor(repartidor);
+        envio.setEstado("EN_TRANSITO");
+
+        repartidor.setEstado("EN_RUTA");
+
+        repartidorRepository.save(repartidor);
+        envioRepository.save(envio);
+    }
+    public void entregarEnvio(Long idEnvio) {
+
+        Envio envio = buscarPorId(idEnvio);
+
+        if (envio == null) {
+            return;
+        }
+
+        if (envio.getRepartidor() != null) {
+
+            envio.getRepartidor().setEstado("DISPONIBLE");
+
+            repartidorRepository.save(envio.getRepartidor());
+        }
+
+        envio.setEstado("ENTREGADO");
+
+        envioRepository.save(envio);
     }
 }

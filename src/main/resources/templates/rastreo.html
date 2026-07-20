@@ -38,7 +38,7 @@
                 <span class="badge bg-primary" th:text="${envio.estado}"></span>
             </p>
             <p><b>Fecha de registro:</b> <span th:text="${envio.fecha}"></span></p>
-            <p><b>Cliente:</b> <span th:text="${envio.cliente.usuario.nombre} + ' ' + ${envio.cliente.usuario.apellido}"></span></p>
+            <p><b>Cliente:</b><span th:text="${envio.usuario.nombre} + ' ' + ${envio.usuario.apellido}"></span></p>
             <p><b>Ruta:</b>
                 <span th:text="${envio.ruta.ciudadOrigen.nombre} + ' &rarr; ' + ${envio.ruta.ciudadDestino.nombre}"></span>
             </p>

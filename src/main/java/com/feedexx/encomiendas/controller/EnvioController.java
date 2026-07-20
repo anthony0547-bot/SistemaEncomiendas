@@ -1,10 +1,8 @@
 package com.feedexx.encomiendas.controller;
 
-import com.feedexx.encomiendas.entity.Cliente;
 import com.feedexx.encomiendas.entity.Envio;
 import com.feedexx.encomiendas.entity.Usuario;
 import com.feedexx.encomiendas.service.CiudadService;
-import com.feedexx.encomiendas.service.ClienteService;
 import com.feedexx.encomiendas.service.EnvioService;
 import com.feedexx.encomiendas.service.OrsService;
 import com.feedexx.encomiendas.service.RepartidorService;
@@ -26,9 +24,6 @@ public class EnvioController {
     private EnvioService envioService;
 
     @Autowired
-    private ClienteService clienteService;
-
-    @Autowired
     private RepartidorService repartidorService;
 
     @Autowired
@@ -38,12 +33,36 @@ public class EnvioController {
     private OrsService orsService;
 
     @GetMapping
-    public String listar(Model model) {
-        // La calculadora de tarifa (Desde/Para/mapa) es publica, como en FedEx:
-        // no se exige login solo para ver el formulario y cotizar.
-        model.addAttribute("listarEnvios", envioService.listarTodos());
+    public String listar(HttpSession session, Model model) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuarioActual");
+
+        boolean esAdmin = false;
+
+        if (usuario != null) {
+
+            if ("ADMIN".equals(usuario.getRol())) {
+
+                esAdmin = true;
+                model.addAttribute("listarEnvios", envioService.listarTodos());
+
+            } else {
+
+                model.addAttribute("listarEnvios",
+                        envioService.listarPorUsuario(usuario.getIdUsuario()));
+
+            }
+
+        } else {
+
+            model.addAttribute("listarEnvios", java.util.Collections.emptyList());
+
+        }
+
+        model.addAttribute("esAdmin", esAdmin);
         model.addAttribute("envioNuevo", new Envio());
         model.addAttribute("listarCiudades", ciudadService.listarTodas());
+
         return "envios";
     }
 
@@ -55,45 +74,47 @@ public class EnvioController {
                            Model model) {
 
         // Solo al momento de ENVIAR se exige haber iniciado sesion.
-        Usuario usuarioActual = (Usuario) session.getAttribute("usuarioActual");
-        if (usuarioActual == null) {
-            return "redirect:/login";
-        }
+    	Usuario usuarioActual = (Usuario) session.getAttribute("usuarioActual");
 
-        // El cliente se toma automaticamente del usuario logueado (no de un select).
-        Cliente cliente = clienteService.buscarPorUsuario(usuarioActual.getIdUsuario());
-        if (cliente == null) {
-            // El usuario existe pero no tiene un perfil de Cliente creado todavia.
-            model.addAttribute("error",
-                    "Tu cuenta no tiene un perfil de cliente registrado. Completa tu registro de cliente antes de enviar.");
-            model.addAttribute("listarEnvios", envioService.listarTodos());
-            model.addAttribute("envioNuevo", new Envio());
-            model.addAttribute("listarCiudades", ciudadService.listarTodas());
-            return "envios";
-        }
+    	if (usuarioActual == null) {
+    	    return "redirect:/login";
+    	}
 
-        envio.setFecha(LocalDate.now());
-        envio.setEstado("REGISTRADO");
-        envio.setCliente(cliente);
-        // El repartidor se asigna despues (por un administrador), no en este formulario.
+    	envio.setFecha(LocalDate.now());
+    	envio.setEstado("REGISTRADO");
+    	envio.setUsuario(usuarioActual);
 
-        try {
-            envioService.registrarEnvio(envio, idCiudadOrigen, idCiudadDestino);
-        } catch (IllegalStateException ex) {
-            model.addAttribute("error", ex.getMessage());
-            model.addAttribute("listarEnvios", envioService.listarTodos());
-            model.addAttribute("envioNuevo", new Envio());
-            model.addAttribute("listarCiudades", ciudadService.listarTodas());
-            return "envios";
-        }
+    	try {
+    	    envioService.registrarEnvio(envio, idCiudadOrigen, idCiudadDestino);
+    	} catch (IllegalStateException ex) {
+    	    model.addAttribute("error", ex.getMessage());
+    	    model.addAttribute("listarEnvios", envioService.listarTodos());
+    	    model.addAttribute("envioNuevo", new Envio());
+    	    model.addAttribute("listarCiudades", ciudadService.listarTodas());
+    	    return "envios";
+    	}
 
-        return "redirect:/envios";
+    	return "redirect:/envios?exito";
     }
 
     @GetMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Long id) {
         envioService.eliminar(id);
         return "redirect:/envios";
+    }
+    @GetMapping("/mis-envios")
+    public String misEnvios(HttpSession session, Model model) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuarioActual");
+
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("listarEnvios",
+                envioService.listarPorUsuario(usuario.getIdUsuario()));
+
+        return "mis-envios";
     }
 
     /**

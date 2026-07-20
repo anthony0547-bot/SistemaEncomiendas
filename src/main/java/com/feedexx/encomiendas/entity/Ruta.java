@@ -26,15 +26,19 @@ public class Ruta {
 
     @Column(name = "tiempo_estimado", nullable = false)
     private Integer tiempoEstimado; // minutos
+    
+    @Column(name = "costo_envio", nullable =false)
+    private Double costoEnvio;
 
     public Ruta() {
     }
 
-    public Ruta(Ciudad ciudadOrigen, Ciudad ciudadDestino, Double distanciaKm, Integer tiempoEstimado) {
+    public Ruta(Ciudad ciudadOrigen, Ciudad ciudadDestino, Double distanciaKm, Integer tiempoEstimado,Double costoEnvio) {
         this.ciudadOrigen = ciudadOrigen;
         this.ciudadDestino = ciudadDestino;
         this.distanciaKm = distanciaKm;
         this.tiempoEstimado = tiempoEstimado;
+        this.costoEnvio = costoEnvio;
     }
 
     public Long getIdRuta() {
@@ -75,5 +79,12 @@ public class Ruta {
 
     public void setTiempoEstimado(Integer tiempoEstimado) {
         this.tiempoEstimado = tiempoEstimado;
+    }
+    public Double getCostoEnvio() {
+        return costoEnvio;
+    }
+
+    public void setCostoEnvio(Double costoEnvio) {
+        this.costoEnvio = costoEnvio;
     }
 }

@@ -85,10 +85,85 @@
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC7R1A1OsUEvONyYInmh2iHjcU6AEDN3iQ&libraries=places&callback=initMap"></script>
 
 <script>
-    function initMap() {
-        if (typeof puntosCamino === "undefined" || puntosCamino.length === 0) {
-            return;
+let map;
+let directionsService;
+let directionsRenderer;
+
+function initMap() {
+
+    if (typeof puntosCamino === "undefined" || puntosCamino.length < 2) {
+        return;
+    }
+
+    map = new google.maps.Map(document.getElementById("mapa"), {
+        zoom: 7,
+        center: {
+            lat: puntosCamino[0].latitud,
+            lng: puntosCamino[0].longitud
         }
+    });
+
+    directionsService = new google.maps.DirectionsService();
+
+    directionsRenderer = new google.maps.DirectionsRenderer({
+        suppressMarkers: false,
+        polylineOptions: {
+            strokeColor: "#198754",
+            strokeWeight: 6
+        }
+    });
+
+    directionsRenderer.setMap(map);
+
+    calcularRuta();
+}
+function calcularRuta() {
+
+    let waypoints = [];
+
+    for (let i = 1; i < puntosCamino.length - 1; i++) {
+
+        waypoints.push({
+            location: {
+                lat: puntosCamino[i].latitud,
+                lng: puntosCamino[i].longitud
+            },
+            stopover: true
+        });
+
+    }
+
+    directionsService.route({
+
+        origin: {
+            lat: puntosCamino[0].latitud,
+            lng: puntosCamino[0].longitud
+        },
+
+        destination: {
+            lat: puntosCamino[puntosCamino.length - 1].latitud,
+            lng: puntosCamino[puntosCamino.length - 1].longitud
+        },
+
+        waypoints: waypoints,
+
+        travelMode: google.maps.TravelMode.DRIVING
+
+    }, function(result, status) {
+
+        if (status === "OK") {
+
+            directionsRenderer.setDirections(result);
+
+        } else {
+
+            alert("No se pudo calcular la ruta.");
+
+        }
+
+    });
+
+}
 
         const coordenadas = puntosCamino.map(c => ({ lat: c.latitud, lng: c.longitud }));
 

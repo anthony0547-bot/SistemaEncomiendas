@@ -44,6 +44,11 @@
 <div class="container" style="max-width: 900px;">
 
     <h2 class="titulo-tarifa">Calcular la tarifa de tu encomienda</h2>
+    <div th:if="${param.exito}" class="alert alert-success alert-dismissible fade show" role="alert">
+    	<strong>¡Éxito!</strong> Tu envío fue registrado correctamente.
+    	Espera a que un administrador asigne un repartidor.
+    	<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+	</div>
 
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
@@ -87,17 +92,16 @@
                     <span class="input-group-text">kg</span>
                 </div>
             </div>
-            <div class="col-md-8">
-                <label class="form-label fw-bold">Dimensiones L x A x A*</label>
-                <input type="text" class="form-control" th:field="*{dimensiones}" placeholder="Ej: 30 x 20 x 15 cm" required>
-            </div>
         </div>
 
         <button type="submit" class="btn btn-naranja w-100 py-2 mb-5">ENVIAR</button>
     </form>
 
-    <h5 class="mb-3">Envios registrados</h5>
-    <table class="table table-striped table-bordered table-sm mb-5">
+    <div th:if="${esAdmin}">
+
+    	<h5 class="mb-3">Envíos registrados</h5>
+
+    	<table class="table table-striped table-bordered table-sm mb-5">
         <thead class="table-dark">
         <tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Estado</th><th>Costo</th><th></th></tr>
         </thead>
@@ -105,7 +109,7 @@
         <tr th:each="envio : ${listarEnvios}">
             <td th:text="${envio.idEnvio}"></td>
             <td th:text="${envio.fecha}"></td>
-            <td th:text="${envio.cliente.usuario.nombre}"></td>
+            <td th:text="${envio.usuario.nombre}"></td>
             <td th:text="${envio.estado}"></td>
             <td th:text="${envio.costo}"></td>
             <td>
@@ -115,6 +119,7 @@
         </tr>
         </tbody>
     </table>
+    </div>
 </div>
 
 <script async defer
@@ -213,5 +218,6 @@
             });
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

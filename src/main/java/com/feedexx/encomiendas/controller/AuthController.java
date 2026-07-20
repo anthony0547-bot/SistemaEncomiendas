@@ -10,10 +10,27 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class AuthController {
+	
+	@Autowired
+	private UsuarioService usuarioService;
 
-    @Autowired
-    private UsuarioService usuarioService;
+	@GetMapping("/registro")
+	public String mostrarRegistro(Model model) {
+	    model.addAttribute("usuarioNuevo", new Usuario());
+	    return "registro";
+	}
 
+	@PostMapping("/registro")
+	public String registrarUsuario(@ModelAttribute("usuarioNuevo") Usuario usuario) {
+
+	    // Todos los usuarios que se registren desde la página serán CLIENTES
+	    usuario.setRol("CLIENTE");
+
+	    usuarioService.guardar(usuario);
+
+	    return "redirect:/login";
+	}
+	
     @GetMapping("/login")
     public String mostrarLogin() {
         return "login";
@@ -33,6 +50,15 @@ public class AuthController {
         }
 
         session.setAttribute("usuarioActual", usuario);
+
+        if ("ADMIN".equals(usuario.getRol())) {
+            return "redirect:/admin";
+        }
+
+        if ("REPARTIDOR".equals(usuario.getRol())) {
+            return "redirect:/repartidor";
+        }
+
         return "redirect:/";
     }
 
