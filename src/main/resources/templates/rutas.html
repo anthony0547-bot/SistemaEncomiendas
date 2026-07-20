@@ -44,12 +44,46 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Distancia (km)</label>
-                            <input type="number" step="0.01" class="form-control" id="distanciaKm" th:field="*{distanciaKm}" required>
-                            <small class="text-muted">Se llena automaticamente, pero puedes editarla si lo necesitas.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Tiempo estimado (minutos)</label>
+    						<label class="form-label">Distancia (km)</label>
+
+    						<input
+        						type="number"
+        						step="0.01"
+        						class="form-control"
+        						id="distanciaKm"
+        						th:field="*{distanciaKm}"
+        						required>
+
+    						<small class="text-muted">
+        						Se llena automáticamente, pero puedes editarla si lo necesitas.
+    						</small>
+						</div>
+
+						<div class="mb-3">
+    						<label class="form-label">Tiempo estimado (minutos)</label>
+
+    						<input
+        						type="number"
+        						class="form-control"
+        						id="tiempoEstimado"
+        						th:field="*{tiempoEstimado}"
+        						required>
+						</div>
+
+						<div class="mb-3">
+    						<label class="form-label">Costo base de la ruta ($)</label>
+
+    						<input
+        						type="number"
+        						step="0.01"
+        						class="form-control"
+        						th:field="*{costoEnvio}"
+        						required>
+
+    						<small class="text-muted">
+        						Valor base para recorrer esta ruta.
+    						</small>
+						</div>
                             <input type="number" class="form-control" id="tiempoEstimado" th:field="*{tiempoEstimado}" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Guardar Ruta</button>
@@ -60,7 +94,15 @@
         <div class="col-md-7">
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
-                <tr><th>ID</th><th>Origen</th><th>Destino</th><th>Km</th><th>Min</th><th>Acciones</th></tr>
+                <tr>
+    				<th>ID</th>
+    				<th>Origen</th>
+    				<th>Destino</th>
+    				<th>Km</th>
+    				<th>Min</th>
+    				<th>Costo</th>
+    				<th>Acciones</th>
+				</tr>
                 </thead>
                 <tbody>
                 <tr th:each="r : ${listarRutas}">
@@ -69,6 +111,7 @@
                     <td th:text="${r.ciudadDestino.nombre}"></td>
                     <td th:text="${r.distanciaKm}"></td>
                     <td th:text="${r.tiempoEstimado}"></td>
+                    <td th:text="'$ ' + ${r.costoEnvio}"></td>
                     <td>
                         <a th:href="@{/rutas/eliminar/{id}(id=${r.idRuta})}" class="btn btn-sm btn-danger"
                            onclick="return confirm('¿Eliminar?');">Eliminar</a>

@@ -12,7 +12,13 @@
     <div class="row">
         <div class="col-md-5">
             <div class="card">
-                <div class="card-header">Registrar / Editar Usuario</div>
+                <h4 th:if="${usuarioNuevo.idUsuario == null}">
+    				Registrar Usuario
+				</h4>
+
+				<h4 th:if="${usuarioNuevo.idUsuario != null}">
+    				Editar Usuario
+				</h4>
                 <div class="card-body">
                     <form th:action="@{/usuarios/guardar}" th:object="${usuarioNuevo}" method="post">
                         <input type="hidden" th:field="*{idUsuario}">
@@ -34,18 +40,31 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Rol</label>
-                            <select class="form-select" th:field="*{rol}" required>
-                                <option value="CLIENTE">Cliente</option>
-                                <option value="REPARTIDOR">Repartidor</option>
-                                <option value="ADMIN">Administrador</option>
-                            </select>
+                            <div class="mb-3"
+     							th:if="${session.usuarioActual != null and session.usuarioActual.rol == 'ADMIN'}">
+
+    							<label class="form-label">Rol</label>
+
+    							<select class="form-select" th:field="*{rol}">
+        							<option value="CLIENTE">Cliente</option>
+        							<option value="REPARTIDOR">Repartidor</option>
+        							<option value="ADMIN">Administrador</option>
+    							</select>
+
+							</div>
+
+							<input type="hidden"
+       							th:if="${session.usuarioActual == null}"
+       							th:field="*{rol}"
+       							value="CLIENTE">							
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Guardar</button>
                     </form>
                 </div>
             </div>
         </div>
-        <div class="col-md-7">
+        <div class="col-md-7"
+     		th:if="${session.usuarioActual != null and session.usuarioActual.rol == 'ADMIN'}">
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
                 <tr><th>ID</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Acciones</th></tr>

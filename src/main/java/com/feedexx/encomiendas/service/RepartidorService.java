@@ -31,4 +31,11 @@ public class RepartidorService {
     public void eliminar(Long id) {
         repartidorRepository.deleteById(id);
     }
+    public Repartidor buscarPorUsuario(Long idUsuario){
+
+        return repartidorRepository
+                .findByUsuario_IdUsuario(idUsuario)
+                .orElse(null);
+
+    }
 }

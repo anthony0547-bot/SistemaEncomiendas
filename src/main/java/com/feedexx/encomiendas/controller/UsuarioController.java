@@ -1,11 +1,13 @@
 package com.feedexx.encomiendas.controller;
 
+
 import com.feedexx.encomiendas.entity.Usuario;
 import com.feedexx.encomiendas.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/usuarios")
@@ -15,9 +17,16 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("listarUsuarios", usuarioService.listarTodos());
+    public String listar(Model model, HttpSession session) {
+
         model.addAttribute("usuarioNuevo", new Usuario());
+
+        Usuario usuarioActual = (Usuario) session.getAttribute("usuarioActual");
+
+        if (usuarioActual != null && "ADMIN".equals(usuarioActual.getRol())) {
+            model.addAttribute("listarUsuarios", usuarioService.listarTodos());
+        }
+
         return "usuarios";
     }
 
@@ -28,15 +37,34 @@ public class UsuarioController {
     }
 
     @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model) {
+    public String editar(@PathVariable Long id,
+                         Model model,
+                         HttpSession session) {
+
+        Usuario usuarioActual = (Usuario) session.getAttribute("usuarioActual");
+
+        if (usuarioActual == null || !"ADMIN".equals(usuarioActual.getRol())) {
+            return "redirect:/login";
+        }
+
         model.addAttribute("usuarioNuevo", usuarioService.buscarPorId(id));
         model.addAttribute("listarUsuarios", usuarioService.listarTodos());
+
         return "usuarios";
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminar(@PathVariable Long id) {
+    public String eliminar(@PathVariable Long id,
+                           HttpSession session) {
+
+        Usuario usuarioActual = (Usuario) session.getAttribute("usuarioActual");
+
+        if (usuarioActual == null || !"ADMIN".equals(usuarioActual.getRol())) {
+            return "redirect:/login";
+        }
+
         usuarioService.eliminar(id);
+
         return "redirect:/usuarios";
     }
 }

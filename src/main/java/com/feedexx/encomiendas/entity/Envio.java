@@ -18,8 +18,6 @@ public class Envio {
     @Column(name = "peso", nullable = false)
     private Double peso;
 
-    @Column(name = "dimensiones", nullable = false, length = 50)
-    private String dimensiones;
 
     @Column(name = "costo", nullable = false)
     private Double costo;
@@ -28,8 +26,8 @@ public class Envio {
     private String estado; // REGISTRADO, EN_TRANSITO, ENTREGADO
 
     @ManyToOne
-    @JoinColumn(name = "id_cliente", referencedColumnName = "id_cliente", nullable = false)
-    private Cliente cliente;
+    @JoinColumn(name = "id_usuario")
+    private Usuario usuario;
 
     @ManyToOne
     @JoinColumn(name = "id_repartidor", referencedColumnName = "id_repartidor")
@@ -42,17 +40,17 @@ public class Envio {
     public Envio() {
     }
 
-    public Envio(LocalDate fecha, Double peso, String dimensiones, Double costo, String estado,
-                 Cliente cliente, Repartidor repartidor, Ruta ruta) {
-        this.fecha = fecha;
-        this.peso = peso;
-        this.dimensiones = dimensiones;
-        this.costo = costo;
-        this.estado = estado;
-        this.cliente = cliente;
-        this.repartidor = repartidor;
-        this.ruta = ruta;
-    }
+    public Envio(LocalDate fecha, Double peso, Double costo, String estado,
+            Usuario usuario, Repartidor repartidor, Ruta ruta) {
+
+   		this.fecha = fecha;
+   		this.peso = peso;
+   		this.costo = costo;
+   		this.estado = estado;
+   		this.usuario = usuario;
+   		this.repartidor = repartidor;
+   		this.ruta = ruta;
+	}
 
     public Long getIdEnvio() {
         return idEnvio;
@@ -78,13 +76,6 @@ public class Envio {
         this.peso = peso;
     }
 
-    public String getDimensiones() {
-        return dimensiones;
-    }
-
-    public void setDimensiones(String dimensiones) {
-        this.dimensiones = dimensiones;
-    }
 
     public Double getCosto() {
         return costo;
@@ -102,13 +93,6 @@ public class Envio {
         this.estado = estado;
     }
 
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
 
     public Repartidor getRepartidor() {
         return repartidor;
@@ -124,5 +108,12 @@ public class Envio {
 
     public void setRuta(Ruta ruta) {
         this.ruta = ruta;
+    }
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

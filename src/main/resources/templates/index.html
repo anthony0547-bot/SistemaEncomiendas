@@ -98,13 +98,66 @@
         <a th:href="@{/grafo}" class="nav-link-custom">Mejor Ruta</a>
     </div>
 
-    <a th:href="@{/login}" class="nav-derecha">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-            <circle cx="12" cy="8" r="4"></circle>
-            <path d="M4 21c0-4 4-7 8-7s8 3 8 7"></path>
-        </svg>
-        Iniciar sesion
-    </a>
+    <div th:if="${session.usuarioActual == null}" class="d-flex align-items-center gap-3">
+
+    	<a th:href="@{/login}" class="nav-derecha">
+        	Iniciar sesión
+    	</a>
+
+    	<a th:href="@{/usuarios}" class="btn btn-outline-light btn-sm">
+        	Registrarse
+    	</a>
+
+	</div>
+	<div th:if="${session.usuarioActual != null}" class="dropdown">
+
+    	<button
+        	class="btn btn-outline-light dropdown-toggle"
+        	data-bs-toggle="dropdown">
+
+        	Hola,
+        	<span th:text="${session.usuarioActual.nombre}"></span>
+
+    	</button>
+
+    	<ul class="dropdown-menu dropdown-menu-end">
+
+        	<!-- Cliente -->
+
+        	<li th:if="${session.usuarioActual.rol == 'CLIENTE'}">
+            	<a class="dropdown-item" th:href="@{/envios/mis-envios}">
+    				Mis envíos
+				</a>
+        	</li>
+
+        	<!-- Repartidor -->
+
+        	<li th:if="${session.usuarioActual.rol == 'REPARTIDOR'}">
+    			<a class="dropdown-item" th:href="@{/repartidor}">
+        			Mis entregas
+    			</a>
+			</li>			
+
+        	<!-- Administrador -->
+
+        	<li th:if="${session.usuarioActual.rol == 'ADMIN'}">
+            	<a class="dropdown-item" th:href="@{/usuarios}">
+                	Panel de administración
+            	</a>
+        	</li>
+
+        	<li><hr class="dropdown-divider"></li>
+
+        	<li>
+            	<a class="dropdown-item text-danger"
+   					th:href="@{/logout}">
+    					Cerrar sesión
+				</a>
+        	</li>
+
+    	</ul>
+
+	</div>
 </nav>
 
 <!-- ===== HERO ===== -->
@@ -219,18 +272,27 @@
 </div>
 
 <!-- ===== PANEL ADMIN (solo visible si inicio sesion como ADMIN) ===== -->
-<div class="panel-admin" th:if="${session.usuarioActual != null and session.usuarioActual.rol == 'ADMIN'}">
-    <hr>
-    <h6 class="text-muted mb-3">Panel de administracion</h6>
-    <div class="d-flex flex-wrap gap-2">
-        <a th:href="@{/usuarios}" class="btn btn-outline-secondary btn-sm">Usuarios</a>
-        <a th:href="@{/clientes}" class="btn btn-outline-secondary btn-sm">Clientes</a>
-        <a th:href="@{/repartidores}" class="btn btn-outline-secondary btn-sm">Repartidores</a>
-        <a th:href="@{/ciudades}" class="btn btn-outline-secondary btn-sm">Ciudades</a>
-        <a th:href="@{/rutas}" class="btn btn-outline-secondary btn-sm">Rutas</a>
-        <a th:href="@{/comprobantes}" class="btn btn-outline-secondary btn-sm">Comprobantes</a>
-    </div>
-</div>
+<div class="panel-admin"
+     th:if="${session.usuarioActual != null and session.usuarioActual.rol == 'ADMIN'}">
 
+    <hr>
+
+    <div class="text-center">
+
+        <h5 class="mb-3">
+            Panel de Administración
+        </h5>
+
+        <a th:href="@{/admin}"
+           class="btn btn-primary btn-lg">
+
+            🛠 Ir al Panel de Administración
+
+        </a>
+
+    </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
